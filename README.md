@@ -22,6 +22,23 @@ Technically speaking, the above can be translated with the following podman opti
 - `NoNewPrivileges=true`
 - `DropCapability=...`
 
+## Prerequesites
+
+All the files must be copied to `/etc/containers/systemd/`.  
+In order to make `UserNS=auto` working properly, you need to first allocate the UIDs and GIDs to be used for these containers.  
+Podman recommends that you allocate the highest 2 billion UIDs for your containers.   
+You can do this by adding the following containers line to your `/etc/subuid` and `/etc/subgid` file.  
+```sh
+# cat /etc/subuid
+user:100000:65536
+containers:2147483647:2147483648 
+# cat /etc/subgid
+user:100000:65536
+containers:2147483647:214748364
+```
+
+
+
 ## Why not rootless?
 
 According to [this conversation](https://github.com/containers/podman/discussions/13728), Daniel Walsh (one of the developer of Podman) mentioned that _"Rootless containers are great for containers run by users on a system, but if you are just running containers on a server, then --userns=auto is a more secure solution"_.  
