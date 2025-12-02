@@ -1,0 +1,5 @@
+[Pod]
+PodName=immich
+UserNS=auto
+ServiceName=immich
+Network=immich.network

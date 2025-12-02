@@ -1,0 +1,37 @@
+[Unit]
+Description=Synapse Matrix homeserver
+Documentation=https://github.com/element-hq/synapse
+Documentation=https://element-hq.github.io/synapse/latest/setup/installation.html#docker-images-and-ansible-playbooks
+Documentation=https://github.com/element-hq/synapse/tree/develop/contrib/docker
+
+[Container]
+ContainerName=synapse-server
+Image=docker.io/matrixdotorg/synapse:latest
+AutoUpdate=registry
+
+Volume=/home/containers/synapse/data:/data:idmap
+Volume=/home/containers/synapse/media_store:/media_store:idmap
+
+User=991:991
+ReadOnly=true
+NoNewPrivileges=true
+
+Environment=SYNAPSE_SERVER_NAME=example.org
+Environment=SYNAPSE_CONFIG_DIR=/data
+Environment=SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
+
+HealthCmd=["CMD-SHELL", "curl -fSs http://localhost:8008/health || exit 1"]
+HealthStartPeriod=5s
+HealthInterval=15s
+HealthTimeout=5s
+HealthRetries=5
+Notify=healthy
+
+Pod=synapse.pod
+
+[Service]
+TimeoutStartSec=90
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

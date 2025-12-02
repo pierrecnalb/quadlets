@@ -1,0 +1,32 @@
+[Unit]
+Description=Wallabag Container
+Documentation=https://wallabag.org/
+Documentation=https://doc.wallabag.org/admin/installation/installation/#installation-with-docker-or-docker-compose
+
+[Container]
+ContainerName=wallabag
+Image=docker.io/wallabag/wallabag:latest
+AutoUpdate=registry
+
+Network=wallabag.network
+
+UserNS=auto
+NoNewPrivileges=true
+
+Volume=/home/containers/wallabag/images:/var/www/wallabag/web/assets/images:idmap
+Volume=/home/containers/wallabag/data:/var/www/wallabag/data:idmap
+
+
+Environment=SYMFONY__ENV__DOMAIN_NAME=https://bag.example.org
+Environment=SYMFONY__ENV__SERVER_NAME="wallabag instance"
+# default user=wallabag, pwd=wallabag
+Environment=SYMFONY__ENV__FOSUSER_CONFIRMATION=true
+Environment=SYMFONY__ENV__FOSUSER_REGISTRATION=false
+Environment=SYMFONY__ENV__SECRET=this_needs_to_be_changed________
+
+[Service]
+TimeoutStartSec=90
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

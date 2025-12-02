@@ -1,0 +1,5 @@
+[Pod]
+PodName=opencloud
+UserNS=auto
+Network=opencloud.network
+ServiceName=opencloud

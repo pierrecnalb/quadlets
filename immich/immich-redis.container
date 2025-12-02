@@ -1,0 +1,27 @@
+[Unit]
+Description=Immich Redis
+
+[Container]
+Pod=immich.pod
+ContainerName=immich-redis
+Image=docker.io/valkey/valkey:8@sha256:81db6d39e1bba3b3ff32bd3a1b19a6d69690f94a3954ec131277b9a26b95b3aa
+
+Volume=immich-redis:/data:idmap
+
+User=999:999
+ReadOnly=true
+NoNewPrivileges=true
+
+HealthCmd="/usr/local/bin/redis-cli ping || exit 1"
+HealthStartPeriod=15s
+HealthInterval=10s
+HealthTimeout=5s
+HealthRetries=5
+Notify=healthy
+
+[Service]
+Restart=always
+TimeoutStartSec=200
+
+[Install]
+WantedBy=multi-user.target

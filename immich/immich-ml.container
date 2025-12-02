@@ -1,0 +1,30 @@
+[Unit]
+Description=Immich Machine Learning
+
+[Container]
+Pod=immich.pod
+ContainerName=immich-machine-learning
+Image=ghcr.io/immich-app/immich-machine-learning:v2
+AutoUpdate=registry
+
+Volume=immich-model-cache:/cache:idmap
+Volume=immich-ml:/usr/src/.cache:idmap
+Volume=immich-ml:/usr/src/.config:idmap
+
+User=1000:1000
+# CAP_KILL is needed because the containers os.kill inactive threads to spare memory usage 
+AddCapability=CAP_KILL  
+ReadOnly=true
+
+HealthCmd=["CMD-SHELL", "python3 healthcheck.py || exit 1"] 
+HealthStartPeriod=30s
+HealthInterval=10s
+HealthTimeout=5s
+HealthRetries=5
+Notify=healthy
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

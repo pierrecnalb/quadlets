@@ -1,0 +1,48 @@
+[Unit]
+Description=OpenCloud Collabora container
+
+[Container]
+ContainerName=opencloud-collabora
+# release notes: https://www.collaboraonline.com/release-notes/
+Image=docker.io/collabora/code:25.04.7.1.1
+AutoUpdate=registry
+Timezone=Europe/Paris
+
+AddCapability=MKNOD
+
+Entrypoint=["/bin/bash", "-c"]
+Exec='coolconfig generate-proof-key && /start-collabora-online.sh'
+
+# Mount local TrueType fonts so the container can use system fonts
+# (e.g. Microsoft fonts like Arial, Calibri, Cambria by installing the `ttf-mscorefonts-installer` package).
+# Volume=/usr/share/fonts/truetype:/usr/share/fonts/truetype/more:ro,idmap
+# Volume=/usr/share/fonts/truetype:/opt/cool/systemplate/usr/share/fonts/truetype/more:ro,idmap
+
+Environment=aliasgroup1=https://wopiserver.example.org:443
+Environment=DONT_GEN_SSL_CERT=YES
+Environment=extra_params="--o:ssl.enable=false \
+                          --o:ssl.ssl_verification=true \
+                          --o:ssl.termination=true \
+                          --o:welcome.enable=false \
+                          --o:net.frame_ancestors=cloud.example.org \
+                          --o:net.lok_allow.host[14]=cloud.example.org \
+                          --o:home_mode.enable=false"
+
+Environment=username=admin
+Secret=collabora_pwd,type=env,target=password
+
+Pod=opencloud.pod
+
+HealthCmd=["CMD-SHELL", "curl -f http://localhost:9980/hosting/discovery || exit 1"]
+HealthStartPeriod=15s
+HealthInterval=15s
+HealthTimeout=5s
+HealthRetries=5
+Notify=healthy
+
+[Service]
+TimeoutStartSec=90
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

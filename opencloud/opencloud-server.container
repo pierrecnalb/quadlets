@@ -1,0 +1,87 @@
+[Unit]
+Description=OpenCloud container
+Documentation=https://github.com/opencloud-eu/opencloud-compose
+Documentation=https://docs.opencloud.eu/docs/admin/getting-started/container/docker-compose/external-proxy
+
+[Container]
+ContainerName=opencloud-server
+Image=docker.io/opencloudeu/opencloud-rolling:4
+AutoUpdate=registry
+Timezone=Europe/Paris
+
+Pod=opencloud.pod
+
+User=1000:1000
+ReadOnly=true
+
+Entrypoint=["/bin/sh"]
+Exec=-c 'opencloud init || true; opencloud server'
+
+Volume=/home/containers/opencloud/config:/etc/opencloud:idmap
+Volume=/home/containers/opencloud/data:/var/lib/opencloud:idmap
+Volume=/home/containers/opencloud/apps:/var/lib/opencloud/web/assets/apps:idmap
+
+Volume=./csp.yaml:/etc/opencloud/csp.yaml:idmap 
+# prohibited password list with the most used french password
+Volume=./banned-password-list.txt:/etc/opencloud/banned-password-list.txt:idmap
+ # for radicale
+Volume=./proxy.yaml:/etc/opencloud/proxy.yaml:idmap
+
+# Addititional services to be started on opencloud startup
+# The following list of services is not startet automatically and must be
+# manually defined for startup:
+# IMPORTANT: The notification service is MANDATORY, do not delete!
+# IMPORTANT: Add any services to the startup list comma separated like "notifications,antivirus" etc.
+Environment=OC_ADD_RUN_SERVICES=notifications
+# Domain of openCloud, where you can find the frontend.
+Environment=OC_URL=https://cloud.example.org
+# do not use SSL between reverse proxy and OpenCloud
+Environment=PROXY_TLS=false
+# INSECURE: needed if OpenCloud / Reverse proxy is using self generated certificates
+Environment=OC_INSECURE=false
+# basic auth (not recommended, but needed for eg. WebDav clients that do not support OpenID Connect)
+Environment=PROXY_ENABLE_BASIC_AUTH=false
+# demo users
+Environment=IDM_CREATE_DEMO_USERS=false
+# admin user password (this overrides the admin password from the configuration file)
+Secret=opencloud_admin,type=env,target=IDM_ADMIN_PASSWORD
+# email server
+Environment=NOTIFICATIONS_SMTP_HOST=smtp.mailbox.org
+Environment=NOTIFICATIONS_SMTP_PORT=465
+Environment=NOTIFICATIONS_SMTP_SENDER="OpenCloud Notifications <example@mailbox.org>"
+Environment=NOTIFICATIONS_SMTP_USERNAME=example@mailbox.org
+Secret=opencloud_smtp,type=env,target=NOTIFICATIONS_SMTP_PASSWORD
+Environment=NOTIFICATIONS_SMTP_INSECURE=false
+Environment=NOTIFICATIONS_SMTP_AUTHENTICATION=auto
+Environment=NOTIFICATIONS_SMTP_ENCRYPTION=ssltls
+# enable downloading big archive file
+Environment=FRONTEND_ARCHIVER_MAX_SIZE=10000000000
+Environment=FRONTEND_CHECK_FOR_UPDATES=true
+Environment=PROXY_CSP_CONFIG_FILE_LOCATION=/etc/opencloud/csp.yaml
+# enable to allow using the banned passwords list
+Environment=OC_PASSWORD_POLICY_BANNED_PASSWORDS_LIST=banned-password-list.txt
+# reverse proxy address
+Environment=PROXY_HTTP_ADDR="0.0.0.0:9200"
+
+#------------------- 
+# For collabora
+#-------------------
+# this is needed for setting the correct CSP header
+Environment=COLLABORA_DOMAIN=collabora.example.org
+# expose nats and the reva gateway for the collaboration service
+Environment=NATS_NATS_HOST=0.0.0.0
+
+Environment=GATEWAY_GRPC_ADDR=0.0.0.0:9142
+# make collabora the secure view app
+Environment=FRONTEND_APP_HANDLER_SECURE_VIEW_APP_ADDR=eu.opencloud.api.collaboration
+
+Environment=GRAPH_AVAILABLE_ROLES="b1e2218d-eef8-4d4c-b82d-0f1a1b48f3b5,a8d5fe5e-96e3-418d-825b-534dbdf22b99,fb6c3e19-e378-47e5-b277-9732f9de6e21,58c63c02-1d89-4572-916a-870abc5a1b7d,2d00ce52-1fc2-4dbc-8b95-a73b73395f5a,1c996275-f1c9-4e71-abdf-a42f6495e960,312c0871-5ef7-4b3a-85b6-0e4074c64049,aa97fe03-7980-45ac-9e50-b325749fd7e6"
+
+
+
+[Service]
+Restart=always
+TimeoutStartSec=90
+
+[Install]
+WantedBy=multi-user.target

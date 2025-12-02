@@ -1,0 +1,5 @@
+[Pod]
+PodName=synapse
+UserNS=auto
+Network=synapse.network
+ServiceName=synapse

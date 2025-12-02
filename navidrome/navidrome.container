@@ -1,0 +1,32 @@
+[Unit]
+Description="Navidrome Container"
+
+[Container]
+ContainerName=navidrome
+Image=docker.io/deluan/navidrome:latest
+AutoUpdate=registry
+
+Network=navidrome.network
+
+Volume=/home/containers/navidrome/music:/music:idmap,ro
+Volume=/home/containers/navidrome/data:/data:idmap
+Volume=navidrome-cache:/cache:idmap
+
+User=1000:1000
+UserNS=auto
+ReadOnly=true
+NoNewPrivileges=true
+DropCapability=all
+
+# Disable data collection
+Environment=ND_ENABLEINSIGHTSCOLLECTOR=false
+Environment=ND_PORT=4533
+Environment=ND_BASEURL=https://music.example.org
+Environment=ND_CACHEFOLDER:/cache
+
+[Service]
+TimeoutStartSec=90
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

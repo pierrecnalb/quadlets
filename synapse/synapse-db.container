@@ -1,0 +1,45 @@
+[Unit]
+Description=Matrix Postgres
+Documentation=https://element-hq.github.io/synapse/latest/postgres.html#set-up-database
+BindsTo=synapse-server.service
+
+[Container]
+Image=docker.io/postgres:17-alpine
+ContainerName=synapse-db
+AutoUpdate=registry
+
+Volume=db_17:/var/lib/postgresql/data:idmap
+# Used to initialize the db with a dump placed in initdb.d.
+# sudo -u postgres pg_dump -Fc --exclude-table-data e2e_one_time_keys_json synapse > synapse.dump
+# see: https://element-hq.github.io/synapse/latest/postgres.html#set-up-database
+# Volume=/home/containers/synapse/initdb.d:/docker-entrypoint-initdb.d:idmap
+Volume=/home/containers/synapse/db_dump:/db_dump:idmap
+
+User=postgres:postgres
+ReadOnly=true
+
+ShmSize=128m
+
+Environment=POSTGRES_USER=synapse
+Secret=synapse_db_pwd,type=env,target=POSTGRES_PASSWORD
+Environment=POSTGRES_DB=synapse
+# ensure the database gets created correctly
+# https://element-hq.github.io/synapse/latest/postgres.html#set-up-database
+Environment=POSTGRES_INITDB_ARGS="--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+
+HealthCmd=["CMD-SHELL", "pg_isready"]
+HealthStartPeriod=1m
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=5
+Notify=healthy
+
+Pod=synapse.pod
+
+[Service]
+TimeoutStartSec=180
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=synapse-server.service

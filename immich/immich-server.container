@@ -1,0 +1,38 @@
+[Unit]
+Description=Immich Server
+Requires=immich-redis.service immich-db.service 
+After=immich-redis.service immich-db.service 
+
+[Container]
+ContainerName=immich-server
+Image=ghcr.io/immich-app/immich-server:v2
+AutoUpdate=registry
+Timezone=local
+
+Pod=immich.pod
+
+User=1000:1000
+NoNewPrivileges=true
+# Volume=/etc/localtime:/etc/localtime:ro,idmap
+Volume=/home/containers/immich:/data:idmap
+
+Environment=REDIS_HOSTNAME=localhost
+Environment=DB_HOSTNAME=localhost
+Environment=DB_USERNAME=postgres
+Secret=immich_db_pwd,type=env,target=DB_PASSWORD
+Environment=DB_DATABSE_NAME=immich
+
+
+HealthCmd=["/bin/bash", "immich-healthcheck"]
+HealthStartPeriod=15s
+HealthInterval=10s
+HealthTimeout=30s
+HealthRetries=10
+Notify=healthy
+
+[Service]
+TimeoutStartSec=200
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

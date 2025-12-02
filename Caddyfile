@@ -1,0 +1,47 @@
+# ------ NAVIDROME --------
+music.example.org {
+  reverse_proxy navidrome:4533 {
+    header_up Host {http.reverse_proxy.upstream.hostport}
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Real-IP {http.reverse_proxy.upstream.port}
+  }
+}
+
+# ------ WALLABAG --------
+bag.example.org {
+  reverse_proxy http://wallabag
+}
+
+# ------ OPENCLOUD --------
+cloud.example.org {
+  reverse_proxy opencloud:9200
+}
+
+collabora.example.org {
+  reverse_proxy opencloud:9980
+}
+
+wopiserver.example.org {
+  reverse_proxy opencloud:9300
+}
+
+# ------ IMMICH --------
+photos.example.org {
+  reverse_proxy immich:2283
+}
+
+# ------ SYNAPSE --------
+example.org {
+  reverse_proxy /_matrix/* synapse:8008
+  reverse_proxy /_synapse/client/* synapse:8008
+
+  header /.well-known/matrix/* Content-Type application/json
+  header /.well-known/matrix/* Access-Control-Allow-Origin *
+  respond /.well-known/matrix/server `{"m.server": "example.org:443"}`
+  respond /.well-known/matrix/client `{"m.homeserver":{"base_url":"https://example.org"},"m.identity_server":{"base_url":"https://vector.im"}}`
+
+}
+
+example.org:8448 {
+  reverse_proxy /_matrix/* synapse:8008
+}
