@@ -26,6 +26,6 @@ Technically speaking, the above can be translated with the following podman opti
 
 According to [this conversation](https://github.com/containers/podman/discussions/13728), Daniel Walsh (one of the developer of Podman) mentioned that _"Rootless containers are great for containers run by users on a system, but if you are just running containers on a server, then --userns=auto is a more secure solution"_.  
 As he explained, when you run multiple containers as a rootless user, they run in the same user namespace so they can attack each other from a User Namespace point of view.  
-Instead, using rootful containers with the `--userns=auto` option, then those containers are running in unigue user namespace and are isolated.  
-In addition to that, using a dedicated user in the container and dropping capabilities/priviliges, should provide way more security than most docker compose files found on the internet.
+Instead, using rootful containers with the `--userns=auto` option, then those containers are running in unique user namespace and are isolated.  
+In addition to that, using a dedicated user in the container and dropping capabilities/privileges, should provide way more security than most docker compose files found on the internet.
  
