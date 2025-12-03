@@ -10,7 +10,7 @@ As such, the quadlets in this repository are specially crafted to resolve those 
 
 The quadlets are designed to be used as root with the following features:
 - pods are used to host related containers
-- containers are properly isolated from each other within their own user namespace
+- containers from different pods are properly isolated from each other within their own user namespace
 - containers are running with a dedicated user
 - unnecessary capabilities are dropped
 - the least amount of privileges are used
