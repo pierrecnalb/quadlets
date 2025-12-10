@@ -13,7 +13,6 @@ Pod=immich.pod
 
 User=1000:1000
 NoNewPrivileges=true
-# Volume=/etc/localtime:/etc/localtime:ro,idmap
 Volume=/home/containers/immich:/data:idmap
 
 Environment=REDIS_HOSTNAME=localhost
